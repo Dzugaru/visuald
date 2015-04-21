@@ -73,6 +73,14 @@ IVsOutputWindowPane getBuildOutputPane()
 	return pane;
 }
 
+IVsOutputWindowPane getGeneralOutputPane()
+{
+	IServiceProvider sp = visuald.dpackage.Package.s_instance.getServiceProvider();
+	IVsOutputWindowPane pane;
+	sp.QueryService(&SID_SVsGeneralOutputWindowPane, &IVsOutputWindowPane.iid, cast(void **)&pane);
+	return pane;
+}
+
 class OutputPaneBuffer
 {
 	static shared(string) buffer;
@@ -114,6 +122,14 @@ void writeToBuildOutputPane(string msg)
 	}
 	else
 		OutputPaneBuffer.push(msg);
+}
+
+void writeToGeneralOutputPane(string msg)
+{
+	IVsOutputWindowPane pane = getGeneralOutputPane();
+	scope(exit) release(pane);
+	pane.Activate();
+	pane.OutputString(_toUTF16z(msg));
 }
 
 bool tryWithExceptionToBuildOutputPane(T)(T dg, string errInfo = "")

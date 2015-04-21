@@ -634,6 +634,7 @@ rc /fo&quot;$(OutDir)\visuald.res&quot; $(InputPath)" outfile="$(OutDir)\visuald
   <File path="dimagelist.d" />
   <File path="dllmain.d" />
   <File path="dpackage.d" />
+  <File path="dropdowns.d" />
   <File path="fileutil.d" />
   <File path="getmsobj.d" />
   <File path="help.d" />

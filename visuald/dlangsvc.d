@@ -29,6 +29,7 @@ import visuald.simpleparser;
 import visuald.config;
 import visuald.vdserverclient;
 import visuald.vdextensions;
+import visuald.dropdowns;
 
 version = VDServer;
 
@@ -926,9 +927,16 @@ class CodeWindowManager : DisposingComObject, IVsCodeWindowManager
 	{
 		mixin(LogCallMix);
 
+		writeToGeneralOutputPane("\nAdd adornments enter");
+
 		IVsTextView textView;
 		if(mCodeWin.GetPrimaryView(&textView) != S_OK)
+		{
+			writeToGeneralOutputPane("\nNo primary view");
 			return E_FAIL;
+		}
+
+	
 
 		// attach view filter to primary view.
 		if(textView)
@@ -937,9 +945,14 @@ class CodeWindowManager : DisposingComObject, IVsCodeWindowManager
 		// attach view filter to secondary view.
 		textView = null;
 		if(mCodeWin.GetSecondaryView(&textView) != S_OK)
+		{
+			writeToGeneralOutputPane("\nNo secondary view");
 			return E_FAIL;
+		}
 		if(textView)
 			OnNewView(textView);
+
+		
 
 		return S_OK;
 	}
@@ -954,10 +967,23 @@ class CodeWindowManager : DisposingComObject, IVsCodeWindowManager
 
 	override int OnNewView(IVsTextView pView)
 	{
-		mixin(LogCallMix);
+		mixin(LogCallMix);	
 
 		ViewFilter vf = newCom!ViewFilter(this, pView);
 		mViewFilters ~= vf;
+
+		//try to get navbar
+		auto ddbarManager = qi_cast!IVsDropdownBarManager(mCodeWin);
+		if(ddbarManager)
+		{
+			writeToGeneralOutputPane("\nBar managed OK!");
+
+			auto result = ddbarManager.AddDropdownBar(2, newCom!DropdownBarClient());
+			writeToGeneralOutputPane(format("\nAdding bar result: %x", result));
+			//result = ddbarManager.AddDropdownBar(1, newCom!DropdownBarClient());
+			//writeToGeneralOutputPane(format("\nAdding bar result: %x", result));			
+		}
+
 		return S_OK;
 	}
 
